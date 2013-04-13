@@ -11,7 +11,7 @@
       }
       .brand img { height: 25px; }
       #trades { height: 250px; overflow: scroll; border: 1px solid #000; }
-
+      #footer p { text-align: center; }
     </style>
     <link href="http://twitter.github.io/bootstrap/assets/css/bootstrap-responsive.css" rel="stylesheet">
     <!--[if lt IE 9]>
@@ -19,6 +19,7 @@
     <![endif]-->
   </head>
   <body>
+    <a href="https://github.com/EvanDotPro/bitcoin-data"><img style="position: absolute; top: 0; right: 0; border: 0; z-index: 9999;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png" alt="Fork me on GitHub"></a>
     <div class="navbar navbar-inverse navbar-fixed-top">
       <div class="navbar-inner">
         <div class="container">
@@ -31,11 +32,20 @@
         <p> Real-time trades:</p>
         <pre id="trades"></pre>
     </div>
+
+    <hr/>
+    <div id="footer">
+        <p>A product of the procrastination of <a href="http://evan.pro">Evan Coury</a>.</p>
+        <p>There are <span id="userCount">...</span> users lurking right now.</p>
+    </div>
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
     <script type="text/javascript" src="http://<?=$_SERVER['HTTP_HOST'];?>:9999/socket.io/socket.io.js"></script>
     <script type="text/javascript">
         $(function() {
             var socket = io.connect('http://<?=$_SERVER['HTTP_HOST'];?>:9999');
+            socket.on('userCount', function (data) {
+                $('#userCount').text(data.count);
+            });
             socket.on('goxlag', function (data) {
                 $('#goxlag').text(data.lag);
             });
