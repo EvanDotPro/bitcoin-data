@@ -10,7 +10,8 @@
         padding-top: 60px;
       }
       .brand img { height: 25px; }
-      #placeholder { width: 500px; height: 250px; }
+      #trades { height: 250px; overflow: scroll; border: 1px solid #000; }
+
     </style>
     <link href="http://twitter.github.io/bootstrap/assets/css/bootstrap-responsive.css" rel="stylesheet">
     <!--[if lt IE 9]>
@@ -21,27 +22,27 @@
     <div class="navbar navbar-inverse navbar-fixed-top">
       <div class="navbar-inner">
         <div class="container">
-          <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
           <a class="brand" href="#"><img src="http://cdn8.thecollegeinvestor.com/wp-content/uploads/2013/04/bitcoin.png"/> Bitcoin Live</a>
-          <div class="nav-collapse collapse">
-            <ul class="nav">
-              <li class="active"><a href="#">Home</a></li>
-              <li><a href="#about">About</a></li>
-              <li><a href="#contact">Contact</a></li>
-            </ul>
-          </div>
         </div>
       </div>
     </div>
     <div class="container">
         <h1>Mt.Gox Lag: <span id="goxlag">...</span></h1>
+        <p> Real-time trades:</p>
+        <pre id="trades"></pre>
     </div>
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-    <script type="text/javascript" src="./socket.io.js"></script>
-    <script type="text/javascript" src="./client.js"></script>
+    <script type="text/javascript" src="http://<?=$_SERVER['HTTP_HOST'];?>:9999/socket.io/socket.io.js"></script>
+    <script type="text/javascript">
+        $(function() {
+            var socket = io.connect('http://<?=$_SERVER['HTTP_HOST'];?>:9999');
+            socket.on('goxlag', function (data) {
+                $('#goxlag').text(data.lag);
+            });
+            socket.on('btctrade', function (data) {
+                $('#trades').prepend(data.trade + "\n");
+            });
+        });
+    </script>
   </body>
 </html>
