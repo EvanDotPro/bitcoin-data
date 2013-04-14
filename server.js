@@ -2,21 +2,33 @@
 var io = require('socket.io').listen(9999);
 var spawn = require('child_process').spawn;
 var irc = require('irc');
-var client = new irc.Client('chat.freenode.net', 'bitcoinrover', {
-    channels: ['#bitcoin-market'],
+var client = new irc.Client('chat.freenode.net', 'bitcoinrover2', {
+    channels: [
+    '#bitcoin-market',
+    '#bitcoin-watch'
+    ],
+    stripColors: true
 });
 var connectedCount = 0;
 
+var replayTrades = 25;
+var latestTrades = [];
+
 client.addListener('message', function (from, to, message) {
-    currency = message.substring(message.length - 3, message.length);
-    console.log(message.substring(message.length - 3, message.length));
-    if (from !== 'amphipod' || currency != 'USD') return;
-    io.sockets.emit('btctrade', {trade: message});
+    trade = {'from': from, 'to': to, 'message': message};
+    io.sockets.emit('btctrade', trade);
+    latestTrades.unshift(trade);
+    if (latestTrades.length > replayTrades) {
+        latestTrades.pop();
+    }
 });
 
 io.on("connection", function(client){
     connectedCount += 1;
     io.sockets.emit('userCount', {count: connectedCount});
+    for (i=0; i<latestTrades.length; i++) {
+        io.sockets.emit('btctrade', latestTrades[i]);
+    }
     client.on("disconnect", function(){
         connectedCount -= 1;
         io.sockets.emit('userCount', {count: connectedCount});
